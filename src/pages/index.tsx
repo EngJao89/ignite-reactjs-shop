@@ -1,7 +1,10 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { GetStaticProps } from "next"
 
 import { useKeenSlider } from 'keen-slider/react'
+
+import { stripe } from "../lib/stripe"
 
 import 'keen-slider/keen-slider.min.css'
 import { HomeContainer, Product } from '@/styles/pages/home'
@@ -65,4 +68,32 @@ export default function Home() {
       </HomeContainer>
     </>
   )
+}
+
+export const getStaticProps: GetStaticProps = async () => {
+  const response = await stripe.products.list({
+    expand: ['data.default_price']
+  });
+
+
+  const products = response.data.map(product => {
+    const price = product.default_price as Stripe.Price;
+
+    return {
+      id: product.id,
+      name: product.name,
+      imageUrl: product.images[0],
+      price: new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL'
+      }).format(price.unit_amount / 100),
+    }
+  })
+
+  return {
+    props: {
+      products
+    },
+    revalidate: 60 * 60 * 2 // 2 hours,
+  }
 }
