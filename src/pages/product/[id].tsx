@@ -1,6 +1,6 @@
 import axios from "axios";
 import { GetStaticPaths, GetStaticProps } from "next"
-import Image from "next/future/image";
+import Image from "next/image";
 import Head from "next/head";
 import { useState } from "react";
 import Stripe from "stripe";
@@ -92,7 +92,7 @@ export const getStaticProps: GetStaticProps<any, { id: string }> = async ({ para
         price: new Intl.NumberFormat('pt-BR', {
           style: 'currency',
           currency: 'BRL'
-        }).format(price.unit_amount / 100),
+        }).format(price?.unit_amount / 100),
         description: product.description,
         defaultPriceId: price.id
       }
